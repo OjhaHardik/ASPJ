@@ -1,0 +1,9 @@
+# Serve index.html first and keep private files out of reach.
+DirectoryIndex index.html
+Options -Indexes
+
+<FilesMatch "\.(csv|md)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+</FilesMatch>
