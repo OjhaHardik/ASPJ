@@ -124,78 +124,24 @@
   var streamGroup = document.getElementById('stream-group');
   var streamSelect = document.getElementById('stream');
 
-  /*
-   * CLASSES OFFERED PER CURRICULUM TAB
-   * Keep in sync with PROGRAMMES in submit.php and dev-server.js.
-   */
-  var PAGE_SESSION = '2027-28';
-  var PROGRAMMES = {
-    Foundation: [
-      { session: '2027-28', classes: ['PG 1', 'PG 2', 'Nursery', 'Prep', 'Class 1', 'Class 2'] }
-    ],
-    Cambridge: [
-      { session: '2026-27', classes: ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6'] }
-    ],
-    CBSE: [
-      { session: '2027-28', classes: ['PG 1', 'PG 2', 'Nursery', 'Prep', 'Class 1', 'Class 2', 'Class 3', 'Class 4',
-        'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'Class 11', 'Class 12'] }
-    ]
-  };
-  var STREAM_CLASSES = ['Class 11', 'Class 12']; // CBSE classes that also need a stream
-
-  function selectedProgramme() {
-    var r = form.querySelector('input[name="programme"]:checked');
-    return r ? r.value : '';
-  }
-
-  function needsStream(programme, grade) {
-    return programme === 'CBSE' && STREAM_CLASSES.indexOf(grade) !== -1;
+  // Class 11 and 12 also ask for a stream. Keep in sync with submit.php and dev-server.js.
+  function needsStream(grade) {
+    return grade === 'Class 11' || grade === 'Class 12';
   }
 
   function toggleStream() {
-    var show = needsStream(selectedProgramme(), gradeSelect.value);
+    var show = needsStream(gradeSelect.value);
     streamGroup.hidden = !show;
     if (!show) streamSelect.value = '';
   }
-
-  // Rebuild the Class dropdown for the selected curriculum tab.
-  function fillClasses() {
-    var programme = selectedProgramme();
-    var groups = PROGRAMMES[programme] || [];
-    gradeSelect.innerHTML = '';
-    gradeSelect.add(new Option(programme ? 'Select class' : 'Choose a curriculum first', ''));
-    groups.forEach(function (g) {
-      var parent = gradeSelect;
-      if (groups.length > 1 || g.session !== PAGE_SESSION) {
-        parent = document.createElement('optgroup');
-        parent.label = 'Session ' + g.session;
-        gradeSelect.appendChild(parent);
-      }
-      g.classes.forEach(function (c) {
-        var o = new Option(c, c);
-        o.setAttribute('data-session', g.session);
-        parent.appendChild(o);
-      });
-    });
-    gradeSelect.disabled = !programme;
-    toggleStream();
-  }
-
-  form.querySelectorAll('input[name="programme"]').forEach(function (r) {
-    r.addEventListener('change', fillClasses);
-  });
   gradeSelect.addEventListener('change', toggleStream);
-  fillClasses();
 
-  // Text for the thank-you message, e.g. "Cambridge Class 3, session 2026-27".
+  // Text for the thank-you message, e.g. "Class 11 (PCM)".
   function describe(v) {
-    var s = v.programme + ' ' + v.grade;
-    if (v.stream) s += ' (' + v.stream + ')';
-    if (v.session !== PAGE_SESSION) s += ', session ' + v.session;
-    return s;
+    return v.stream ? v.grade + ' (' + v.stream + ')' : v.grade;
   }
 
-  var FIELDS = ['firstName', 'lastName', 'programme', 'grade', 'stream', 'whatsapp', 'email', 'consent'];
+  var FIELDS = ['firstName', 'lastName', 'grade', 'stream', 'whatsapp', 'email', 'consent'];
 
   // Keep the WhatsApp field digits-only while typing or pasting.
   phone.addEventListener('input', function () {
@@ -209,13 +155,10 @@
 
   function readValues() {
     var fd = new FormData(form);
-    var opt = gradeSelect.options[gradeSelect.selectedIndex];
     return {
       firstName: String(fd.get('firstName') || '').trim(),
       lastName: String(fd.get('lastName') || '').trim(),
-      programme: selectedProgramme(),
       grade: gradeSelect.value,
-      session: (opt && opt.getAttribute('data-session')) || PAGE_SESSION,
       stream: streamSelect.value,
       whatsapp: String(fd.get('whatsapp') || '').replace(/\D/g, ''),
       email: String(fd.get('email') || '').trim(),
@@ -228,9 +171,8 @@
     var err = {};
     if (!v.firstName) err.firstName = 'Please enter the first name.';
     if (!v.lastName) err.lastName = 'Please enter the last name.';
-    if (!v.programme) err.programme = 'Please choose a curriculum.';
-    else if (!v.grade) err.grade = 'Please select a class.';
-    if (needsStream(v.programme, v.grade) && !v.stream) err.stream = 'Please select a stream.';
+    if (!v.grade) err.grade = 'Please select a class.';
+    if (needsStream(v.grade) && !v.stream) err.stream = 'Please select a stream.';
     if (!/^[6-9]\d{9}$/.test(v.whatsapp)) err.whatsapp = 'Please enter a valid 10-digit WhatsApp number.';
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email)) err.email = 'Please enter a valid email address.';
     if (!v.consent) err.consent = 'Please tick the box to agree before submitting.';
@@ -248,17 +190,14 @@
       }
     });
     var first = FIELDS.filter(function (k) { return err[k]; })[0];
-    if (first) {
-      var el = document.getElementById(first);
-      (el.tagName === 'FIELDSET' ? el.querySelector('input') : el).focus();
-    }
+    if (first) document.getElementById(first).focus();
   }
 
   // Clear a field's error as soon as the visitor fixes it.
   FIELDS.forEach(function (k) {
     var input = document.getElementById(k);
     if (!input) return;
-    input.addEventListener(input.type === 'checkbox' || input.tagName === 'SELECT' || input.tagName === 'FIELDSET' ? 'change' : 'input', function () {
+    input.addEventListener(input.type === 'checkbox' || input.tagName === 'SELECT' ? 'change' : 'input', function () {
       if (input.getAttribute('aria-invalid') !== 'true') return;
       var err = validate(readValues());
       if (!err[k]) {
@@ -301,13 +240,12 @@
     var payload = {
       first_name: v.firstName,
       last_name: v.lastName,
-      programme: v.programme,
       class: v.grade,
       stream: v.stream,
       whatsapp: '+91' + v.whatsapp,
       email: v.email,
       consent: true,
-      session: v.session,
+      session: '2027-28',
       source: 'admissions-landing-page',
       page_url: window.location.href,
       website: v.website
@@ -344,7 +282,7 @@
 
   document.getElementById('reset-btn').addEventListener('click', function () {
     form.reset();
-    fillClasses();
+    toggleStream();
     showErrors({});
     sendError.hidden = true;
     thanksView.hidden = true;

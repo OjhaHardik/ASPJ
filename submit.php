@@ -18,20 +18,10 @@ header('Cache-Control: no-store');
 
 const CSV_FILE = __DIR__ . '/data/enquiries.csv';
 const CSV_HEADER = ['submitted_at', 'first_name', 'last_name', 'class', 'whatsapp (+91)', 'email', 'consent', 'session', 'source', 'page_url', 'ip_address', 'user_agent'];
-// Curriculum tab => session => classes. Keep in sync with PROGRAMMES in js/main.js.
-const PROGRAMMES = [
-    'Foundation' => [
-        '2027-28' => ['PG 1', 'PG 2', 'Nursery', 'Prep', 'Class 1', 'Class 2'],
-    ],
-    'Cambridge' => [
-        '2026-27' => ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6'],
-    ],
-    'CBSE' => [
-        '2027-28' => ['PG 1', 'PG 2', 'Nursery', 'Prep', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'Class 11', 'Class 12'],
-    ],
-];
+// Keep in sync with the Class options in index.html.
+const CLASSES = ['PG 1', 'PG 2', 'Nursery', 'Prep 1', 'Prep 2', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'Class 11', 'Class 12'];
 const STREAMS = ['Commerce', 'Humanities', 'PCB', 'PCM'];
-const STREAM_CLASSES = ['Class 11', 'Class 12']; // CBSE classes that also need a stream
+const STREAM_CLASSES = ['Class 11', 'Class 12']; // classes that also need a stream
 
 function respond(int $code, array $body): void
 {
@@ -72,11 +62,9 @@ if ($get('website') !== '') {
 
 $first = mb_substr($get('first_name') ?: $get('firstName'), 0, 60);
 $last = mb_substr($get('last_name') ?: $get('lastName'), 0, 60);
-$programme = $get('programme');
 $class = $get('class') ?: $get('grade');
-$session = $get('session') ?: '2027-28';
 $stream = $get('stream');
-$needsStream = $programme === 'CBSE' && in_array($class, STREAM_CLASSES, true);
+$needsStream = in_array($class, STREAM_CLASSES, true);
 $phone = preg_replace('/\D/', '', $get('whatsapp'));
 if (strlen($phone) === 12 && strpos($phone, '91') === 0) {
     $phone = substr($phone, 2);
@@ -88,8 +76,7 @@ $consent = $consentRaw === true || $consentRaw === 'yes' || $consentRaw === 'tru
 $errors = [];
 if ($first === '') $errors['firstName'] = 'Please enter the first name.';
 if ($last === '') $errors['lastName'] = 'Please enter the last name.';
-if (!isset(PROGRAMMES[$programme])) $errors['programme'] = 'Please choose a curriculum.';
-elseif (!in_array($class, PROGRAMMES[$programme][$session] ?? [], true)) $errors['grade'] = 'Please select a class.';
+if (!in_array($class, CLASSES, true)) $errors['grade'] = 'Please select a class.';
 if ($needsStream && !in_array($stream, STREAMS, true)) $errors['stream'] = 'Please select a stream.';
 if (!preg_match('/^[6-9]\d{9}$/', $phone)) $errors['whatsapp'] = 'Please enter a valid 10-digit WhatsApp number.';
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors['email'] = 'Please enter a valid email address.';
@@ -124,11 +111,11 @@ $row = [
     date('c'),
     $first,
     $last,
-    $programme . ' - ' . $class . ($needsStream ? ' (' . $stream . ')' : ''), // e.g. "CBSE - Class 11 (PCM)"
+    $class . ($needsStream ? ' (' . $stream . ')' : ''), // e.g. "Class 11 (PCM)"
     $phone,
     $email,
     'yes',
-    $session,
+    $get('session') ?: '2027-28',
     $get('source') ?: 'admissions-landing-page',
     mb_substr($get('page_url'), 0, 300),
     $_SERVER['REMOTE_ADDR'] ?? '',

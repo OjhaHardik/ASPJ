@@ -199,21 +199,16 @@
               <span class="field-error" id="lastName-error" role="alert"></span>
             </div>
 
-            <fieldset class="field-group--full tab-field" id="programme" aria-describedby="programme-error">
-              <legend>Curriculum</legend>
-              <div class="tab-row">
-                <label class="tab-opt"><input type="radio" name="programme" value="Foundation"><span>Foundation</span></label>
-                <label class="tab-opt"><input type="radio" name="programme" value="Cambridge"><span>Cambridge</span></label>
-                <label class="tab-opt"><input type="radio" name="programme" value="CBSE"><span>CBSE</span></label>
-              </div>
-              <span class="field-error" id="programme-error" role="alert"></span>
-            </fieldset>
-
-            <!-- Class options are filled in by js/main.js (PROGRAMMES) for the chosen curriculum. -->
             <div class="field-group field-group--full">
               <label for="grade">Class</label>
-              <select class="field field--select" id="grade" name="grade" aria-describedby="grade-error" disabled>
-                <option value="">Choose a curriculum first</option>
+              <select class="field field--select" id="grade" name="grade" aria-describedby="grade-error">
+                <option value="">Select class</option>
+                <option>PG 1</option><option>PG 2</option><option>Nursery</option>
+                <option>Prep 1</option><option>Prep 2</option>
+                <option>Class 1</option><option>Class 2</option><option>Class 3</option>
+                <option>Class 4</option><option>Class 5</option><option>Class 6</option>
+                <option>Class 7</option><option>Class 8</option><option>Class 9</option>
+                <option>Class 10</option><option>Class 11</option><option>Class 12</option>
               </select>
               <span class="field-error" id="grade-error" role="alert"></span>
             </div>

@@ -12,13 +12,8 @@ const ROOT = __dirname;
 const PORT = Number(process.env.PORT) || 5502;
 const CSV = path.join(ROOT, 'data', 'enquiries.csv');
 const HEADER = 'submitted_at,first_name,last_name,class,whatsapp (+91),email,consent,session,source,page_url,ip_address,user_agent';
-// Keep in sync with PROGRAMMES in submit.php.
-const range = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => 'Class ' + (a + i));
-const PROGRAMMES = {
-  Foundation: { '2027-28': ['PG 1', 'PG 2', 'Nursery', 'Prep', 'Class 1', 'Class 2'] },
-  Cambridge: { '2026-27': range(1, 6) },
-  CBSE: { '2027-28': ['PG 1', 'PG 2', 'Nursery', 'Prep'].concat(range(1, 12)) },
-};
+// Keep in sync with CLASSES in submit.php.
+const CLASSES = ['PG 1', 'PG 2', 'Nursery', 'Prep 1', 'Prep 2'].concat(Array.from({ length: 12 }, (_, i) => 'Class ' + (i + 1)));
 const STREAMS = ['Commerce', 'Humanities', 'PCB', 'PCM'];
 const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml' };
 
@@ -41,20 +36,17 @@ function handleSubmit(req, res) {
     const errors = {};
     if (!String(d.first_name || '').trim()) errors.firstName = 'required';
     if (!String(d.last_name || '').trim()) errors.lastName = 'required';
-    const session = d.session || '2027-28';
-    const prog = Object.hasOwn(PROGRAMMES, d.programme) ? PROGRAMMES[d.programme] : null;
-    const needsStream = d.programme === 'CBSE' && ['Class 11', 'Class 12'].includes(d.class);
-    if (!prog) errors.programme = 'required';
-    else if (!(prog[session] || []).includes(d.class)) errors.grade = 'invalid';
+    const needsStream = ['Class 11', 'Class 12'].includes(d.class);
+    if (!CLASSES.includes(d.class)) errors.grade = 'invalid';
     if (needsStream && !STREAMS.includes(d.stream)) errors.stream = 'invalid';
     if (!/^[6-9]\d{9}$/.test(phone)) errors.whatsapp = 'invalid';
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(d.email || ''))) errors.email = 'invalid';
     if (d.consent !== true) errors.consent = 'required';
     if (Object.keys(errors).length) return send(422, { success: false, errors });
     if (!fs.existsSync(CSV) || fs.statSync(CSV).size === 0) fs.writeFileSync(CSV, '﻿' + HEADER + '\n');
-    const label = d.programme + ' - ' + d.class + (needsStream ? ' (' + d.stream + ')' : '');
+    const label = d.class + (needsStream ? ' (' + d.stream + ')' : '');
     const row = [new Date().toISOString(), d.first_name, d.last_name, label, phone, d.email, 'yes',
-      session, d.source || 'admissions-landing-page', d.page_url, req.socket.remoteAddress, req.headers['user-agent']];
+      d.session || '2027-28', d.source || 'admissions-landing-page', d.page_url, req.socket.remoteAddress, req.headers['user-agent']];
     fs.appendFileSync(CSV, row.map(safe).join(',') + '\n');
     send(200, { success: true });
   });
