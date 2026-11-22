@@ -21,8 +21,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800;900&amp;family=Inter:wght@400;500;600&amp;display=swap">
-<link rel="stylesheet" href="css/styles.css">
-<script src="js/main.js" defer></script>
+<link rel="stylesheet" href="css/styles.css?v=2">
+<script src="js/main.js?v=2" defer></script>
 </head>
 <body>
 <a class="skip-link" href="#enquire">Skip to enquiry form</a>
@@ -45,9 +45,14 @@
 
 <header class="site-header">
   <div class="container header-inner">
-    <a class="brand" href="https://allenhousejhansi.com/" aria-label="Allenhouse Public School, Jhansi home">
-      <img src="assets/img/logo.png" alt="Allenhouse Public School, Jhansi" width="600" height="187">
-    </a>
+    <div class="brand-group">
+      <a class="brand" href="https://allenhousejhansi.com/" aria-label="Allenhouse Public School, Jhansi home">
+        <img src="assets/img/logo.png" alt="Allenhouse Public School, Jhansi" width="600" height="187">
+      </a>
+      <span class="brand-partner">
+        <img src="assets/img/cambridge-logo.svg" alt="We prepare for Cambridge English Qualifications" width="348" height="174">
+      </span>
+    </div>
 
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-nav" aria-label="Open menu">
       <span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span>
@@ -194,17 +199,34 @@
               <span class="field-error" id="lastName-error" role="alert"></span>
             </div>
 
+            <fieldset class="field-group--full tab-field" id="programme" aria-describedby="programme-error">
+              <legend>Curriculum</legend>
+              <div class="tab-row">
+                <label class="tab-opt"><input type="radio" name="programme" value="Foundation"><span>Foundation</span></label>
+                <label class="tab-opt"><input type="radio" name="programme" value="Cambridge"><span>Cambridge</span></label>
+                <label class="tab-opt"><input type="radio" name="programme" value="CBSE"><span>CBSE</span></label>
+              </div>
+              <span class="field-error" id="programme-error" role="alert"></span>
+            </fieldset>
+
+            <!-- Class options are filled in by js/main.js (PROGRAMMES) for the chosen curriculum. -->
             <div class="field-group field-group--full">
               <label for="grade">Class</label>
-              <select class="field field--select" id="grade" name="grade" aria-describedby="grade-error">
-                <option value="">Select class</option>
-                <option>Nursery</option><option>LKG</option><option>UKG</option>
-                <option>Class 1</option><option>Class 2</option><option>Class 3</option>
-                <option>Class 4</option><option>Class 5</option><option>Class 6</option>
-                <option>Class 7</option><option>Class 8</option><option>Class 9</option>
-                <option>Class 10</option><option>Class 11</option><option>Class 12</option>
+              <select class="field field--select" id="grade" name="grade" aria-describedby="grade-error" disabled>
+                <option value="">Choose a curriculum first</option>
               </select>
               <span class="field-error" id="grade-error" role="alert"></span>
+            </div>
+
+            <div class="field-group field-group--full" id="stream-group" hidden>
+              <label for="stream">Stream</label>
+              <select class="field field--select" id="stream" name="stream" aria-describedby="stream-error">
+                <option value="">Select stream</option>
+                <option>Commerce</option><option>Humanities</option>
+                <option value="PCB">PCB (Physics, Chemistry, Biology)</option>
+                <option value="PCM">PCM (Physics, Chemistry, Maths)</option>
+              </select>
+              <span class="field-error" id="stream-error" role="alert"></span>
             </div>
 
             <div class="field-group field-group--full">

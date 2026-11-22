@@ -121,8 +121,12 @@ button, input, select { font: inherit; }
   position: relative;
 }
 
+.brand-group { display: flex; align-items: center; gap: clamp(8px, 2vw, 14px); flex: 0 1 auto; min-width: 0; }
 .brand { display: flex; align-items: center; flex: 0 1 auto; min-width: 0; }
-.brand img { width: clamp(150px, 40vw, 200px); }
+.brand img { width: clamp(120px, 38vw, 200px); }
+/* Cambridge logo artwork is white, so it sits on a brand-blue badge. */
+.brand-partner { display: flex; flex: none; height: clamp(38px, 11vw, 54px); padding: 0 2px; border-radius: 8px; background: var(--blue); }
+.brand-partner img { height: 100%; width: auto; }
 
 .nav-toggle {
   display: inline-flex; flex-direction: column; justify-content: center; gap: 5px;
@@ -175,7 +179,8 @@ button, input, select { font: inherit; }
 .nav-cta { margin-top: 10px; padding: 14px 20px; }
 
 /* Desktop: horizontal bar with hover dropdowns */
-@media (min-width: 1100px) {
+/* Below 1366px the menu stays behind the toggle: the full menu plus both logos needs ~1240px. */
+@media (min-width: 1366px) {
   html { scroll-padding-top: 16px; }
   .site-header { position: relative; }
   .nav-toggle { display: none; }
@@ -199,8 +204,11 @@ button, input, select { font: inherit; }
   .nav-cta { margin: 0 0 0 10px; padding: 12px 20px; white-space: nowrap; }
 }
 
-@media (min-width: 1100px) and (max-width: 1240px) {
-  .brand img { width: 170px; }
+/* School logo, Cambridge badge and the full menu share one row, so everything runs compact. */
+@media (min-width: 1366px) {
+  .brand-group { flex: none; }
+  .brand img { width: 160px; }
+  .brand-partner { height: 42px; }
   .main-nav { font-size: 14px; }
   .nav-link { padding: 8px 7px; }
 }
@@ -387,6 +395,30 @@ button, input, select { font: inherit; }
 .consent { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--blue); flex: none; cursor: pointer; }
 .consent-row label { font: 400 14px/1.5 var(--font-body); color: var(--ink-2); cursor: pointer; min-width: 0; }
 .consent-row a { color: var(--blue); font-weight: 600; }
+
+/* Curriculum tabs: native radio buttons styled as a segmented control */
+.tab-field { border: 0; margin: 0; padding: 0; min-width: 0; }
+.tab-field legend { padding: 0; margin-bottom: 8px; font: 600 14px var(--font-display); color: var(--ink); }
+.tab-field .field-error { display: block; margin-top: 8px; }
+.tab-field .field-error:empty { display: none; }
+.tab-row {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px;
+  padding: 4px; border: 1.5px solid var(--blue-soft); border-radius: 12px; background: var(--blue-pale);
+}
+.tab-field[aria-invalid="true"] .tab-row { border-color: var(--error); }
+.tab-opt { position: relative; min-width: 0; }
+.tab-opt input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.tab-opt span {
+  display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 6px;
+  border-radius: 8px; text-align: center; overflow-wrap: anywhere;
+  font: 600 clamp(13px, 3.6vw, 15px)/1.2 var(--font-display); color: var(--blue);
+  transition: background-color .15s, color .15s;
+}
+.tab-opt:hover span { background: var(--white); }
+.tab-opt input:checked + span { background: var(--blue); color: var(--white); }
+.tab-opt input:focus-visible + span { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+.field:disabled { background-color: var(--blue-pale); color: var(--ink-3); cursor: not-allowed; }
 
 .send-error {
   display: flex; gap: 10px; align-items: flex-start;
