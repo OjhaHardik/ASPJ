@@ -124,8 +124,7 @@ button, input, select { font: inherit; }
 .brand-group { display: flex; align-items: center; gap: clamp(8px, 2vw, 14px); flex: 0 1 auto; min-width: 0; }
 .brand { display: flex; align-items: center; flex: 0 1 auto; min-width: 0; }
 .brand img { width: clamp(120px, 38vw, 200px); }
-/* Cambridge logo artwork is white, so it sits on a brand-blue badge. */
-.brand-partner { display: flex; flex: none; height: clamp(38px, 11vw, 54px); padding: 0 2px; border-radius: 8px; background: var(--blue); }
+.brand-partner { display: flex; flex: none; height: clamp(38px, 11vw, 54px); }
 .brand-partner img { height: 100%; width: auto; }
 
 .nav-toggle {
